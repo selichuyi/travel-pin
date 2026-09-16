@@ -8,7 +8,12 @@ import { onRequestPost as savePost } from './api/save.js';
 
 const store = new Map();
 const PIN_KV = {
-  get: async (k, type) => (type === 'json' ? store.get(k) ?? null : store.get(k) ?? null),
+  // 模拟真实 KV 的 'json' 类型:返回已解析对象(而非字符串)
+  get: async (k, type) => {
+    const v = store.get(k);
+    if (v == null) return null;
+    return type === 'json' ? JSON.parse(v) : v;
+  },
   put: async (k, v) => {
     store.set(k, v);
   }
