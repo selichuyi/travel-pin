@@ -1,6 +1,7 @@
 /* Detail drawer + place form modal */
 
 import { parseDateSegments, SEGMENT_JOIN, daysBetween, loadTagRegistry, addTagToRegistry } from './data.js?v=86';
+import { isEditMode } from './auth.js?v=87';
 
 let drawerEl = null;
 let modalEl = null;
@@ -108,13 +109,13 @@ export function openJourney(journey, places) {
     <h3 class="section-title" style="margin-top:18px">路径</h3>
     ${
       path.length
-        ? `<p class="help-text" style="margin:0 0 8px">点击地点可修改到访时间；↑ ↓ 调整顺序。</p>
+        ? `${isEditMode() ? '<p class="help-text" style="margin:0 0 8px">点击地点可修改到访时间；↑ ↓ 调整顺序。</p>' : ''}
            <ul class="path-list">${path
             .map(
               (p, i) => `
           <li>
             <span class="path-node"></span>
-            <button type="button" class="path-place edit-only" data-edit-place="${p.id}">
+            <button type="button" class="path-place" data-edit-place="${p.id}">
               <strong style="font-weight:500">${esc(p.name)}</strong>
               <div style="color:var(--text-muted);font-size:11px;margin-top:2px">${esc(p.country || '')}${p.date ? ' · ' + esc(p.date) : ''}</div>
             </button>
@@ -136,6 +137,8 @@ export function openJourney(journey, places) {
 
   body.querySelectorAll('[data-edit-place]').forEach((btn) => {
     btn.addEventListener('click', () => {
+      // 仅编辑模式可点击展开编辑;访客模式下路径只读展示
+      if (!isEditMode()) return;
       const place = places.find((x) => x.id === btn.getAttribute('data-edit-place'));
       if (place) handlers.onEdit?.(place);
     });

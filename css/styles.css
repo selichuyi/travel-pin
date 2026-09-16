@@ -779,6 +779,15 @@ textarea:focus-visible,
   color: var(--accent);
 }
 
+/* 访客只读模式:路径地点纯粹展示,不显示可点击感 */
+.is-readonly .path-place {
+  cursor: default;
+}
+
+.is-readonly .path-place:hover strong {
+  color: inherit;
+}
+
 .path-ops {
   display: flex;
   flex-direction: column;

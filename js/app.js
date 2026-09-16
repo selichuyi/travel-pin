@@ -37,7 +37,7 @@ import {
   closeDrawer,
   openPlaceForm,
   openJourneyForm
-} from './editor.js?v=86';
+} from './editor.js?v=87';
 import {
   isLocalDev,
   isEditMode,
