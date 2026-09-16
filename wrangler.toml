@@ -1,12 +1,14 @@
-# Cloudflare Pages 配置(方案 A)。KV 绑定在 Dashboard 配置(见 DEPLOY.md 第 4 步):
-#   Pages 项目 → Settings → Functions → KV namespace bindings → 变量名 PIN_KV → 对应的 namespace
-# 绑定只保留 dashboard 一种来源,避免与配置文件重复冲突;namespace ID 也就不用写进仓库。
-# 环境变量(敏感内容用 Secrets 配置,勿写进本文件):
-#   EDIT_PASSWORD  编辑密码(进编辑模式时输入)
-#   JWT_SECRET     JWT 签名密钥,建议 `openssl rand -base64 48`
+# Cloudflare Pages 配置(方案 A)。本项目 bindings 由本文件管理(控制台会拒绝手动添加,
+# 提示 "Bindings through wrangler.toml"),Git 集成自动部署时读取本文件注入绑定。
+# namespace ID 非机密(凭它无法读写 KV;真凭据只有 Cloudflare 登录态/API 密钥,
+# 密码与 JWT 密钥在 Settings → Secrets,从不进仓库)。
 name = "travel-pin"
 pages_build_output_dir = "."
 compatibility_date = "2024-11-11"
+
+[[kv_namespaces]]
+binding = "PIN_KV"
+id = "b35b027f7052494f8fc047bc82c1f602"
 
 # 环境变量(敏感内容用 Secrets 配置,勿写进本文件):
 #   EDIT_PASSWORD  编辑密码(进编辑模式时输入)
