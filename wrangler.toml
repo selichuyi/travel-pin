@@ -1,14 +1,15 @@
 # Cloudflare Pages 配置(方案 A)。
 # 部署:`npx wrangler pages deploy . --project-name travel-pin`
-# 或 Dashboard 建 Pages 项目后,在 Settings → Functions → KV namespace bindings
-# 添加变量名 PIN_KV、指向你创建的 KV namespace 即可(此时可删除本文件的 [[kv_namespaces]])。
+# KV 绑定在 Dashboard 配置(见 DEPLOY.md 第 4 步):
+#   Pages 项目 → Settings → Functions → KV namespace bindings → 变量名 PIN_KV
+# 本文件的 [[kv_namespaces 仅作示例,wrangler pages deploy 不会应用它,故 ID 脱敏为占位符。
 name = "travel-pin"
 pages_build_output_dir = "."
 compatibility_date = "2024-11-01"
 
 [[kv_namespaces]]
 binding = "PIN_KV"
-id = "b35b027f7052494f8fc047bc82c1f602"
+id = "REPLACE_WITH_YOUR_NAMESPACE_ID"
 
 # 环境变量(敏感内容用 Secrets 配置,勿写进本文件):
 #   EDIT_PASSWORD  编辑密码(进编辑模式时输入)
