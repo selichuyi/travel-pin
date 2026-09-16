@@ -8,5 +8,9 @@ __pycache__/
 # 开发期截图/差分图,站点不引用,不进公开仓库
 *.png
 
-# 你的真实旅行数据备份,只用于灌入线上 KV,绝不进公开仓库
+# wrangler 本地工具缓存
+/.wrangler/
+
+# 你的真实旅行数据备份(local 导出/灌 KV 用),绝不进公开仓库
 data/travel.real.json
+data/travel.lcy.json

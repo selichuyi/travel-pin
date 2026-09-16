@@ -2,7 +2,11 @@
 # 提示 "Bindings through wrangler.toml"),Git 集成自动部署时读取本文件注入绑定。
 # namespace ID 非机密(凭它无法读写 KV;真凭据只有 Cloudflare 登录态/API 密钥,
 # 密码与 JWT 密钥在 Settings → Secrets,从不进仓库)。
-name = "travel-pin-SL"
+#
+# name = 你的 Pages 项目名(页面的免费子域名 = <项目名>.pages.dev)。
+# 为不向公开仓库泄露真实页面地址,此处用占位符:GIT 集成自动部署不读取 name,
+# 只有 CLI 部署需要,用 `wrangler pages deploy --project-name <真实项目名>` 指定即可。
+name = "REPLACE_WITH_YOUR_PAGES_PROJECT_NAME"
 pages_build_output_dir = "."
 compatibility_date = "2024-11-11"
 
