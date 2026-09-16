@@ -48,21 +48,23 @@ git push -u origin main
 
 1. 登录 https://dash.cloudflare.com → **Workers & Pages → KV** → Create namespace
    - 名称建议 `travel-pin-kv` → 记下它的 **namespace ID**
-2. 复制到 `wrangler.toml` 里的 `[[kv_namespaces]] / id`（替换 REPLACE_WITH_YOUR_NAMESPACE_ID）
+2. 把 ID 填进 `wrangler.toml` 的 `[[kv_namespaces]] / id`（替换 REPLACE_WITH_YOUR_NAMESPACE_ID）
+   —— 本项目绑定由 **wrangler.toml 管理**(控制台会提示无法手动添加),部署与 Git 自动构建都读它。
 
 ## 4. Cloudflare：创建 Pages 项目并部署
 
-1. **Workers & Pages → Create → Pages → Connect to Git**
-   - 选择刚建的 `travel-pin` 仓库 → Framework preset 选 **None**
+1. 连接 GitHub：**Workers & Pages → Create → Pages → Connect to Git**
+   - 账户里选 `selichuyi` → 选择 `travel-pin` 仓库 → Framework preset 选 **None**
    - Build command 留空,Output directory 留空(仓库根目录即站点)
    - 首次 Deploy,得到站点地址 `https://travel-pin.pages.dev`
-2. 绑定 KV：Pages 项目 → **Settings → Functions → KV namespace bindings**
-   - 变量名填 `PIN_KV`,选 `travel-pin-kv` → Save
-3. 配置机密：**Settings → Variables and Secrets → Secrets**
+2. 配置机密：Pages 项目 → **Settings → Variables and Secrets → Secrets**
    - `EDIT_PASSWORD`：你的编辑密码(进编辑模式时输入,选长一点的)
    - `JWT_SECRET`：`openssl rand -base64 48` 生成
+   - 或用 CLI:`printf '值' | wrangler pages secret put NAME --project-name travel-pin`
+   - ⚠️ 改后需重新部署一次才生效(推一个 commit 或 `wrangler pages deploy`)
 
-> 部署后仓库的后续 push 会自动重新发布站点(Pages 与 GitHub 集成)。
+> 部署后仓库的每次 push 都会自动触发重新部署。
+> 健康检查:`https://travel-pin.pages.dev/api/diag` —— 应显示 `hasKvBinding:true` 且 `kvReadable:true`。
 
 ## 5. 灌入真实数据（一次性）
 
