@@ -221,7 +221,7 @@ function wireChrome() {
 
   $('#btn-export').addEventListener('click', () => {
     exportJson(state.data);
-    toast('已导出 JSON — 覆盖项目 data/travel.json 可同步预览');
+    toast('已导出 JSON 备份');
   });
 
   $('#btn-import').addEventListener('click', () => {
