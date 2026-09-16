@@ -1,0 +1,71 @@
+{
+  "places": [
+    {
+      "id": "p-demo-tokyo",
+      "name": "示例·东京",
+      "nameEn": "Demo Tokyo",
+      "country": "日本",
+      "countryCode": "JP",
+      "continent": "亚洲",
+      "lat": 35.6762,
+      "lng": 139.6503,
+      "date": "2030-04-10",
+      "endDate": "2030-04-12",
+      "days": 3,
+      "level": "city",
+      "tags": [
+        "旅行"
+      ],
+      "journeyId": "j-demo-jp"
+    },
+    {
+      "id": "p-demo-paris",
+      "name": "示例·巴黎",
+      "nameEn": "Demo Paris",
+      "country": "法国",
+      "countryCode": "FR",
+      "continent": "欧洲",
+      "lat": 48.8566,
+      "lng": 2.3522,
+      "date": "2030-05-06",
+      "endDate": "2030-05-08",
+      "days": 3,
+      "level": "city",
+      "tags": [
+        "旅行"
+      ],
+      "journeyId": "j-demo-fr"
+    }
+  ],
+  "journeys": [
+    {
+      "id": "j-demo-jp",
+      "name": "示例旅程 · 日本",
+      "startDate": "2030-04-10",
+      "endDate": "2030-04-12",
+      "placeIds": [
+        "p-demo-tokyo"
+      ],
+      "tags": [
+        "旅行"
+      ]
+    },
+    {
+      "id": "j-demo-fr",
+      "name": "示例旅程 · 巴黎",
+      "startDate": "2030-05-06",
+      "endDate": "2030-05-08",
+      "placeIds": [
+        "p-demo-paris"
+      ],
+      "tags": [
+        "旅行"
+      ]
+    }
+  ],
+  "tags": [
+    "长居",
+    "旅行",
+    "文化"
+  ]
+}

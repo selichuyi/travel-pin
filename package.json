@@ -1,0 +1,9 @@
+{
+  "name": "travel-pin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:functions": "node functions/test-local.mjs",
+    "seed:kv": "node scripts/seed-kv.mjs"
+  }
+}

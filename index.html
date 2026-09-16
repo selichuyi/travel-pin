@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Travel Pin — 记录并点亮你的旅行足迹"
+    />
+    <title>Travel Pin · 旅行足迹</title>
+    <meta name="cache-control" content="no-cache" />
+    <link rel="stylesheet" href="./css/styles.css?v=86" />
+    <link rel="stylesheet" href="./vendor/maplibre-gl.css?v=86" />
+    <script src="./vendor/maplibre-gl.js?v=86"></script>
+    <script src="./vendor/globe.gl.min.js?v=86"></script>
+    <script type="application/json" id="default-travel-data">
+      {
+        "places": [
+          {
+            "id": "p-demo-tokyo",
+            "name": "示例·东京",
+            "nameEn": "Demo Tokyo",
+            "country": "日本",
+            "countryCode": "JP",
+            "continent": "亚洲",
+            "lat": 35.6762,
+            "lng": 139.6503,
+            "date": "2030-04-10",
+            "endDate": "2030-04-12",
+            "days": 3,
+            "tags": ["旅行"],
+            "journeyId": "j-demo-jp"
+          },
+          {
+            "id": "p-demo-paris",
+            "name": "示例·巴黎",
+            "nameEn": "Demo Paris",
+            "country": "法国",
+            "countryCode": "FR",
+            "continent": "欧洲",
+            "lat": 48.8566,
+            "lng": 2.3522,
+            "date": "2030-05-06",
+            "endDate": "2030-05-08",
+            "days": 3,
+            "tags": ["旅行"],
+            "journeyId": "j-demo-fr"
+          }
+        ],
+        "journeys": [
+          {
+            "id": "j-demo-jp",
+            "name": "示例旅程 · 日本",
+            "startDate": "2030-04-10",
+            "endDate": "2030-04-12",
+            "placeIds": ["p-demo-tokyo"],
+            "tags": ["旅行"]
+          },
+          {
+            "id": "j-demo-fr",
+            "name": "示例旅程 · 巴黎",
+            "startDate": "2030-05-06",
+            "endDate": "2030-05-08",
+            "placeIds": ["p-demo-paris"],
+            "tags": ["旅行"]
+          }
+        ]
+      }
+    </script>
+    <script>
+      // Classic script (not a module) so it cannot be skipped by ES-module cache.
+      // If localStorage still holds the old placeholder set, wipe and rewrite
+      // every known storage key with the inline default footprint.
+      (function seedTravelPin() {
+        function readInline() {
+          var el = document.getElementById('default-travel-data');
+          if (!el || !el.textContent) return null;
+          try {
+            return JSON.parse(el.textContent);
+          } catch (e) {
+            return null;
+          }
+        }
+
+        function collectKeys() {
+          var out = [];
+          try {
+            for (var i = 0; i < localStorage.length; i++) {
+              var k = localStorage.key(i);
+              if (k && k.indexOf('travel-pin') === 0) out.push(k);
+            }
+          } catch (e) {}
+          return out;
+        }
+
+        function parseBlob(raw) {
+          if (!raw) return null;
+          try {
+            var p = JSON.parse(raw);
+            if (p && p.places) return p;
+            if (p && p.data && p.data.places) return p.data;
+          } catch (e) {}
+          return null;
+        }
+
+        function isOldPlaceholder(data) {
+          if (!data || !data.places || !data.places.length) return true;
+          var ids = data.places
+            .map(function (p) {
+              return p.id || '';
+            })
+            .join('|');
+          if (ids.indexOf('p-tokyo-2023') !== -1) return true;
+          if (ids.indexOf('p-bangkok-2022') !== -1) return true;
+          if (ids.indexOf('p-reykjavik') !== -1) return true;
+          var first = data.places[0];
+          if (first && first.name === '东京' && first.date === '2023-04-08') {
+            return true;
+          }
+          return false;
+        }
+
+        var seed = readInline();
+        if (!seed) return;
+
+        var keys = collectKeys();
+        var current = null;
+        for (var i = 0; i < keys.length; i++) {
+          var parsed = parseBlob(localStorage.getItem(keys[i]));
+          if (parsed && parsed.places && parsed.places.length) {
+            current = parsed;
+            break;
+          }
+        }
+
+        var needsReseed = !current || isOldPlaceholder(current);
+        if (!needsReseed) return;
+
+        try {
+          keys.forEach(function (k) {
+            localStorage.removeItem(k);
+          });
+        } catch (e) {}
+
+        var payload = JSON.stringify(seed);
+        ['travel-pin:v1', 'travel-pin:v2', 'travel-pin:v3', 'travel-pin:v4'].forEach(
+          function (k) {
+            try {
+              localStorage.setItem(k, payload);
+            } catch (e) {}
+          }
+        );
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <h1 class="brand-title">Travel Pin</h1>
+          <span class="brand-sub">点亮足迹</span>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="seg" role="group" aria-label="地图视图">
+            <button type="button" id="btn-mode-2d" class="is-active">2D</button>
+            <button type="button" id="btn-mode-3d">3D</button>
+          </div>
+
+          <button
+            type="button"
+            class="icon-btn"
+            id="btn-panel"
+            title="侧栏"
+            aria-label="切换侧栏"
+          >
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="4" width="7" height="16" rx="1" />
+              <path d="M14 8h7M14 12h7M14 16h5" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="icon-btn edit-only"
+            id="btn-file-link"
+            title="关联数据文件（保存即写回）"
+            aria-label="关联数据文件"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" />
+              <path d="M14 2v6h6" />
+              <path d="M12 11v6" />
+              <path d="M9 14l3 3 3-3" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="icon-btn edit-only"
+            id="btn-save-local"
+            title="保存到本地 travel.json"
+            aria-label="保存到本地 travel.json"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+              <path d="M17 21v-8H7v8" />
+              <path d="M7 3v5h8" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="icon-btn"
+            id="btn-export"
+            title="导出 JSON"
+            aria-label="导出 JSON"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3v12" />
+              <path d="M7 10l5 5 5-5" />
+              <path d="M5 21h14" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="icon-btn edit-only"
+            id="btn-import"
+            title="导入 JSON"
+            aria-label="导入 JSON"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M12 21V9" />
+              <path d="M7 14l5-5 5 5" />
+              <path d="M5 3h14" />
+            </svg>
+          </button>
+
+          <button type="button" class="btn edit-only" id="btn-reset" title="恢复默认足迹数据">
+            恢复默认数据
+          </button>
+
+          <button
+            type="button"
+            class="icon-btn"
+            id="btn-auth"
+            title="编辑模式"
+            aria-label="编辑模式"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3a5 5 0 00-5 5v3H6a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2h-1V8a5 5 0 00-5-5z" />
+              <path d="M12 14v3" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="icon-btn"
+            id="btn-theme"
+            title="切换主题"
+            aria-label="切换主题"
+          >
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M21 14.5A8.5 8.5 0 119 3.5 7 7 0 0021 14.5z"
+              />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="stage" id="stage">
+        <aside class="side-panel" id="side-panel"></aside>
+
+        <section class="map-area" id="map-area">
+          <div id="map2d"></div>
+          <div id="map3d"></div>
+          <div class="map-loading" id="map2d-loading">加载地图中</div>
+          <div class="map-hint" id="map-hint"></div>
+          <aside class="drawer" id="drawer" aria-label="详情"></aside>
+        </section>
+      </main>
+
+      <footer class="timeline" id="timeline"></footer>
+    </div>
+
+    <div class="modal-backdrop" id="modal"></div>
+    <div class="modal-backdrop" id="auth-modal">
+      <div class="modal" role="dialog" aria-modal="true">
+        <div class="modal-head">
+          <h3 class="modal-title">进入编辑模式</h3>
+          <button type="button" class="icon-btn" id="auth-close" aria-label="关闭">
+            <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+        <form id="auth-form">
+          <div class="modal-body">
+            <p class="help-text" style="margin: 0">
+              输入部署时设置的编辑密码。访客无需登录即可浏览站点。
+            </p>
+            <input
+              id="auth-pass"
+              type="password"
+              required
+              placeholder="编辑密码"
+              autocomplete="current-password"
+            />
+            <p
+              class="help-text"
+              id="auth-error"
+              style="margin: 0; color: var(--danger)"
+              hidden
+            ></p>
+          </div>
+          <div class="modal-foot">
+            <button type="button" class="btn" id="auth-cancel">取消</button>
+            <button type="submit" class="btn btn-primary" id="auth-submit">登录</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="./js/app.js?v=86"></script>
+  </body>
+</html>

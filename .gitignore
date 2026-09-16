@@ -1,0 +1,12 @@
+.DS_Store
+.playwright-mcp/
+restart-travel-pin.app/
+
+__pycache__/
+*.pyc
+
+# 开发期截图/差分图,站点不引用,不进公开仓库
+*.png
+
+# 你的真实旅行数据备份,只用于灌入线上 KV,绝不进公开仓库
+data/travel.real.json
