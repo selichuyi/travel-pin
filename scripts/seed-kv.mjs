@@ -1,7 +1,7 @@
 /* 把本地真实数据初灌进 Cloudflare KV(仅属主一人执行,数据不出你的部署)。
  *
  * 用法:
- *   node scripts/seed-kv.mjs --api https://travel-pin.pages.dev \
+ *   node scripts/seed-kv.mjs --api https://<你的项目名>.pages.dev \
  *     --password '你的编辑密码' [--file data/travel.real.json]
  *
  * 流程:读文件 → POST /api/authorize 换 token → POST /api/save 写入 KV。

@@ -56,21 +56,26 @@ git push -u origin main
 1. 连接 GitHub：**Workers & Pages → Create → Pages → Connect to Git**
    - 账户里选 `selichuyi` → 选择 `travel-pin` 仓库 → Framework preset 选 **None**
    - Build command 留空,Output directory 留空(仓库根目录即站点)
-   - 首次 Deploy,得到站点地址 `https://travel-pin.pages.dev`
+   - 首次 Deploy,得到站点地址 `https://<你的项目名>.pages.dev`
 2. 配置机密：Pages 项目 → **Settings → Variables and Secrets → Secrets**
    - `EDIT_PASSWORD`：你的编辑密码(进编辑模式时输入,选长一点的)
    - `JWT_SECRET`：`openssl rand -base64 48` 生成
-   - 或用 CLI:`printf '值' | wrangler pages secret put NAME --project-name travel-pin`
+   - 或用 CLI:`printf '值' | wrangler pages secret put NAME --project-name travel-pin-SL`
    - ⚠️ 改后需重新部署一次才生效(推一个 commit 或 `wrangler pages deploy`)
 
 > 部署后仓库的每次 push 都会自动触发重新部署。
-> 健康检查:`https://travel-pin.pages.dev/api/diag` —— 应显示 `hasKvBinding:true` 且 `kvReadable:true`。
+> 健康检查:`https://<你的项目名>.pages.dev/api/diag` —— 应显示 `hasKvBinding:true` 且 `kvReadable:true`。
+>
+> 提示：项目名=免费子域名。想让真实页面地址难被陌生人猜到,请：
+> 1. 把 Pages 项目名改成一个不相关的名字(如 `travel-pin-SL`),旧子域名随即失效;
+> 2. 不要在公开仓库的任何文档里写下真实页面地址(本文件已用占位符,请保持);<br>
+> 注意这只是「地址难猜」(防随手访问),站点本身仍公开可读——真正的访问控制需另加方案。
 
 ## 5. 灌入真实数据（一次性）
 
 ```bash
 node scripts/seed-kv.mjs \
-  --api https://travel-pin.pages.dev \
+  --api https://<你的项目名>.pages.dev \
   --password '你的编辑密码'
 ```
 
@@ -99,7 +104,7 @@ node scripts/seed-kv.mjs \
 - **更换 JWT_SECRET**：改后所有已签发 token 立即失效,重新登录即可。
 - **KV 备份**：真实数据只在 KV。出于安全本方案删掉了远程写文件的入口,给 KV 里的
   `travel` key 定期备份的办法：打开站点 → 导出 JSON(顶栏导出按钮)存本地即可。
-- **功能自检**：浏览器打开 `https://travel-pin.pages.dev/api/data` 应返回 JSON(你的数据)。
+- **功能自检**：浏览器打开 `https://<你的项目名>.pages.dev/api/data` 应返回 JSON(你的数据)。
 
 ## 安全说明(如实交代边界)
 
