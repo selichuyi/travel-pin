@@ -3,6 +3,8 @@
 记录并点亮你的旅行足迹：2D/3D 地图展示、旅程连线、多段日期、标签统计，纯前端构建
 （MapLibre GL + globe.gl），无构建步骤，本地打开即可运行。
 
+![Travel Pin 2D 夜景地图示例](2D-night-example.png)
+
 ## 运行
 
 ```bash

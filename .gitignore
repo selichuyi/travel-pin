@@ -7,6 +7,8 @@ __pycache__/
 
 # 开发期截图/差分图,站点不引用,不进公开仓库
 *.png
+# README 配图除外(需要显示在公开仓库首页)
+!2D-night-example.png
 
 # wrangler 本地工具缓存
 /.wrangler/
