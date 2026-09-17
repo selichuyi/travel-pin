@@ -87,8 +87,9 @@ printf '%s' "$(openssl rand -base64 48)" | wrangler pages secret put JWT_SECRET 
 > 健康检查:`https://<你的项目名>.pages.dev/api/diag` → `hasKvBinding:true` 且 `kvReadable:true`。
 >
 > 提示：项目名=免费子域名,想让真实页面地址难被陌生人猜到,就把项目名起得
-> 与旅行无关(如 `travel-pin-PLACEHOLDER` 这类)。这只是「地址难猜」,站点本身仍公开可读;
-> 真正的访问控制需另加方案。
+> 与旅行无关(如 `travel-pin-一串随机字符` 这类)。这只是「地址难猜」,站点本身仍公开可读;
+> 真正的访问控制需另加方案。注意 deploy.sh 里的项目名从本地 wrangler.toml 读取,
+> 不要在仓库脚本里硬编码。
 
 ## 5. 灌入真实数据（一次性）
 
