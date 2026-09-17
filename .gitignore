@@ -17,3 +17,5 @@ __pycache__/
 # 你的真实旅行数据备份(local 导出/灌 KV 用),绝不进公开仓库
 data/travel.real.json
 data/travel.lcy.json
+# 本地自用部署脚本,不入仓库(见 DEPLOY.md)
+/deploy.sh
