@@ -20,16 +20,18 @@
 npm install -g wrangler        # 部署 Pages 与配置 KV 用
 ```
 
-## 1. 准备真实数据(只在你本地,不进仓库、不进部署目录)
+## 1. 真实数据(放哪都行,但别让部署传上去)
+
+真实数据文件(如 `data/travel.real.json`、`data/travel.lcy.json`)放在项目 `data/` 下即可,
+已被 .gitignore 覆盖、不会进 git。**但绝不要直接 `wrangler pages deploy .` 整目录部署**——
+那会把未跟踪文件(含真实数据)原样公开到 CDN。统一用快照部署脚本:
 
 ```bash
-# 真实数据文件必须放在部署目录之外,例如:
-mkdir -p ~/travel-pin-backup
-# 把你导出的真实数据(如 travel.json/travel.real.json/travel.lcy.json)放进去
-ls -la ~/travel-pin-backup/
+./deploy.sh        # 只发布「已提交进 git」的文件,未跟踪的真实数据永远不会被上传
 ```
-⚠️ 铁律：**任何含真实数据的文件都不要放进本项目目录**——`wrangler pages deploy`
-会把目录里所有东西都当静态文件上传,真实数据一旦在目录里就会被公开到 CDN。
+
+`deploy.sh` 内部用 `git archive HEAD` 取已提交快照再上传,所以顺带把 png 等杂物也排除掉了。
+种子脚本默认在 `data/` 找真实数据,找不到再找 `~/travel-pin-backup/`。
 
 ## 2. GitHub：建公开仓库并推送
 
@@ -68,8 +70,9 @@ id = "<上一步的 namespace ID>"
 
 ```bash
 wrangler pages project create travel-pin-<你的项目名> --production-branch main
-# 只建一次;之后每次改完代码:
-wrangler pages deploy . --project-name travel-pin-<你的项目名>
+# 只建一次;之后每次改完代码,用快照部署脚本(只发已提交文件,更安全):
+./deploy.sh
+# 等价手写命令: git archive HEAD | tar -x -C <临时目录> && wrangler pages deploy <临时目录> --project-name travel-pin-<你的项目名>
 ```
 
 配置机密(改后需要重新 `wrangler pages deploy` 一次才生效):
@@ -117,6 +120,7 @@ node scripts/seed-kv.mjs \
 
 ## 日常维护
 
+- **改代码发布**：`git add/commit` 后运行 `./deploy.sh`(只部署已提交文件)。
 - **密码泄露/换密码**：改 Pages 的 `EDIT_PASSWORD` 即可,旧密码立刻失效。
 - **更换 JWT_SECRET**：改后所有已签发 token 立即失效,重新登录即可。
 - **KV 备份**：真实数据只在 KV。出于安全本方案删掉了远程写文件的入口,给 KV 里的

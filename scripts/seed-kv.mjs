@@ -21,13 +21,13 @@ function arg(name) {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : null;
 }
 
-// 真实数据只存在于本地备份目录(或 --file 显式指定),绝不放在仓库/部署目录内
+// 真实数据放 data/ 下即可(gitignore 覆盖),部署走 ./deploy.sh(git 快照)不会上传它们。
+// 找不到时再回退到备份目录或 --file 显式指定。
 const CANDIDATES = [
-  join(homedir(), 'travel-pin-backup', 'travel.lcy.json'),
-  join(homedir(), 'travel-pin-backup', 'travel.real.json'),
-  join(homedir(), 'travel-pin-backup', 'travel.json'),
   join(rootDir, 'data', 'travel.real.json'),
-  join(rootDir, 'data', 'travel.lcy.json')
+  join(rootDir, 'data', 'travel.lcy.json'),
+  join(homedir(), 'travel-pin-backup', 'travel.lcy.json'),
+  join(homedir(), 'travel-pin-backup', 'travel.real.json')
 ];
 
 const api = arg('--api');

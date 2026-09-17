@@ -48,6 +48,7 @@ KV 是线上唯一副本，误操作覆盖后无法回滚(本方案不保留历�
 **本仓库仅作代码开源分享**：不含部署配置、真实项目名或站点地址；部署与 GitHub 完全解耦，
 只用本地 CLI/Cloudflare 控制台(完整步骤见 [DEPLOY.md](DEPLOY.md))：
 
+- 部署一条命令：`./deploy.sh`(只发布已提交进 git 的文件快照,未跟踪的真实数据不会上传)
 - 静态站点与接口托管在 Cloudflare Pages(Functions 提供 `/api/data`、`/api/authorize`、`/api/save`)
 - 真实数据存放在 Cloudflare KV，仓库中只有脱敏示例数据
 - 访客只读；属主输入密码换取 24h token 后可在页面直接编辑，改动实时发布
