@@ -8,8 +8,9 @@
 ```
 
 仓库里只放代码 + 脱敏示例数据(`data/travel.json` 是明显虚构的演示数据)；
-你的真实足迹只存在于 Cloudflare KV —— 由种子脚本初灌、由页面日常增删改。
-边看边做，全程约 25 分钟，成本 0 元。
+**GitHub 仓库纯粹用于代码开源分享,部署完全走本地 CLI/控制台,与仓库零连接**。
+部署相关信息(项目名/绑定/地址)都不进仓库——部署配置被你放在本地的 `wrangler.toml`
+(已 .gitignore),真实足迹只存在于 Cloudflare KV。全程成本 0 元。
 
 ---
 
@@ -19,13 +20,16 @@
 npm install -g wrangler        # 部署 Pages 与配置 KV 用
 ```
 
-## 1. 准备真实数据（只在你本地,不进仓库）
+## 1. 准备真实数据(只在你本地,不进仓库、不进部署目录)
 
 ```bash
-# 本仓库已把你的真实数据备份在 data/travel.real.json(已被 .gitignore 保护)
-# 确认它存在,这就是稍后灌入 KV 的数据源
-ls -la data/travel.real.json
+# 真实数据文件必须放在部署目录之外,例如:
+mkdir -p ~/travel-pin-backup
+# 把你导出的真实数据(如 travel.json/travel.real.json/travel.lcy.json)放进去
+ls -la ~/travel-pin-backup/
 ```
+⚠️ 铁律：**任何含真实数据的文件都不要放进本项目目录**——`wrangler pages deploy`
+会把目录里所有东西都当静态文件上传,真实数据一旦在目录里就会被公开到 CDN。
 
 ## 2. GitHub：建公开仓库并推送
 
@@ -48,28 +52,40 @@ git push -u origin main
 
 1. 登录 https://dash.cloudflare.com → **Workers & Pages → KV** → Create namespace
    - 名称建议 `travel-pin-kv` → 记下它的 **namespace ID**
-2. 把 ID 填进 `wrangler.toml` 的 `[[kv_namespaces]] / id`（替换 REPLACE_WITH_YOUR_NAMESPACE_ID）
-   —— 本项目绑定由 **wrangler.toml 管理**(控制台会提示无法手动添加),部署与 Git 自动构建都读它。
+2. 在本地(不入库)建立部署配置 `wrangler.toml`(仓库里的 .gitignore 已忽略它):
 
-## 4. Cloudflare：创建 Pages 项目并部署
+```toml
+name = "<你的Pages项目名>"        # 即未来的子域名 <项目名>.pages.dev
+pages_build_output_dir = "."
+compatibility_date = "2024-11-11"
 
-1. 连接 GitHub：**Workers & Pages → Create → Pages → Connect to Git**
-   - 账户里选你的 GitHub 账号 → 选择 `<你的仓库>` → Framework preset 选 **None**
-   - Build command 留空,Output directory 留空(仓库根目录即站点)
-   - 首次 Deploy,得到站点地址 `https://<你的项目名>.pages.dev`
-2. 配置机密：Pages 项目 → **Settings → Variables and Secrets → Secrets**
-   - `EDIT_PASSWORD`：你的编辑密码(进编辑模式时输入,选长一点的)
-   - `JWT_SECRET`：`openssl rand -base64 48` 生成
-   - 或用 CLI:`printf '值' | wrangler pages secret put NAME --project-name <你的Pages项目名>`
-   - ⚠️ 改后需重新部署一次才生效(推一个 commit 或 `wrangler pages deploy`)
+[[kv_namespaces]]
+binding = "PIN_KV"
+id = "<上一步的 namespace ID>"
+```
 
-> 部署后仓库的每次 push 都会自动触发重新部署。
-> 健康检查:`https://<你的项目名>.pages.dev/api/diag` —— 应显示 `hasKvBinding:true` 且 `kvReadable:true`。
+## 4. Cloudflare：创建 Pages 项目并部署(纯 CLI,不连 GitHub)
+
+```bash
+wrangler pages project create travel-pin-<你的项目名> --production-branch main
+# 只建一次;之后每次改完代码:
+wrangler pages deploy . --project-name travel-pin-<你的项目名>
+```
+
+配置机密(改后需要重新 `wrangler pages deploy` 一次才生效):
+
+```bash
+printf '你的编辑密码' | wrangler pages secret put EDIT_PASSWORD --project-name travel-pin-<你的项目名>
+printf '%s' "$(openssl rand -base64 48)" | wrangler pages secret put JWT_SECRET --project-name travel-pin-<你的项目名>
+```
+
+> ⚠️ 不要用控制台的「Connect to Git」:本项目部署与 GitHub 完全解耦,
+> 仓库 push 不会自动部署,也不会让仓库里的任何信息流到 Cloudflare。
+> 健康检查:`https://<你的项目名>.pages.dev/api/diag` → `hasKvBinding:true` 且 `kvReadable:true`。
 >
-> 提示：项目名=免费子域名。想让真实页面地址难被陌生人猜到,请：
-> 1. 把 Pages 项目名改成一个不相关的名字(如 `travel-pin-<自定义>`),旧子域名随即失效;
-> 2. 不要在公开仓库的任何文档里写下真实页面地址(本文件已用占位符,请保持);<br>
-> 注意这只是「地址难猜」(防随手访问),站点本身仍公开可读——真正的访问控制需另加方案。
+> 提示：项目名=免费子域名,想让真实页面地址难被陌生人猜到,就把项目名起得
+> 与旅行无关(如 `travel-pin-PLACEHOLDER` 这类)。这只是「地址难猜」,站点本身仍公开可读;
+> 真正的访问控制需另加方案。
 
 ## 5. 灌入真实数据（一次性）
 
@@ -79,7 +95,8 @@ node scripts/seed-kv.mjs \
   --password '你的编辑密码'
 ```
 
-脚本读 `data/travel.real.json` → 登录 → 写入 KV。完成后刷新站点即可看到真实足迹。
+脚本自动在 `~/travel-pin-backup`(或 `--file` 指定)里找真实数据 → 登录 → 写入 KV。
+完成后刷新站点即可看到真实足迹。
 
 ## 6. 验证
 

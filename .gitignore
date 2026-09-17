@@ -11,6 +11,9 @@ __pycache__/
 # wrangler 本地工具缓存
 /.wrangler/
 
+# 本地部署配置(含真实项目名,不入仓库;仓库只作代码开源)
+/wrangler.toml
+
 # 你的真实旅行数据备份(local 导出/灌 KV 用),绝不进公开仓库
 data/travel.real.json
 data/travel.lcy.json

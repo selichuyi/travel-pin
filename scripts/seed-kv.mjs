@@ -8,7 +8,8 @@
  * 之后站点上的日常增删改直接走页面,无需再用本脚本。
  */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -20,9 +21,19 @@ function arg(name) {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : null;
 }
 
+// 真实数据只存在于本地备份目录(或 --file 显式指定),绝不放在仓库/部署目录内
+const CANDIDATES = [
+  join(homedir(), 'travel-pin-backup', 'travel.lcy.json'),
+  join(homedir(), 'travel-pin-backup', 'travel.real.json'),
+  join(homedir(), 'travel-pin-backup', 'travel.json'),
+  join(rootDir, 'data', 'travel.real.json'),
+  join(rootDir, 'data', 'travel.lcy.json')
+];
+
 const api = arg('--api');
 const password = arg('--password');
-const file = arg('--file') || join(rootDir, 'data', 'travel.real.json');
+const file =
+  arg('--file') || CANDIDATES.find((p) => existsSync(p)) || CANDIDATES[0];
 
 if (!api || !password) {
   console.error(
