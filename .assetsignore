@@ -1,8 +1,0 @@
-# 仅用于 wrangler pages deploy 直接上传时的排除(git 侧由 .gitignore 管)
-.DS_Store
-.playwright-mcp/
-restart-travel-pin.app/
-__pycache__/
-*.pyc
-*.png
-data/travel.real.json
